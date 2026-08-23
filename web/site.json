@@ -1,0 +1,92 @@
+{
+  "schema": 1,
+  "name": "ggufbill",
+  "github": "https://github.com/SuperMarioYL/ggufbill",
+  "host": "ggufbill.lei6393.com",
+  "lang": { "primary": "zh", "toggle": true },
+  "accent": ["#0071e3"],
+  "hero": {
+    "eyebrow": {
+      "zh": "本地 · 单命令 · 随包传播 · 可核验",
+      "en": "Local · One command · Travels with the model · Verifiable"
+    },
+    "headline": {
+      "zh": "手写的部署配置\n随模型一起传播",
+      "en": "Hand-written serving configs\nnow travel with the model"
+    },
+    "sub": {
+      "zh": "ggufbill 读出模型文件的身份，把你验证过的部署配置写成一份清单，随模型文件跨机器、跨重建传播。",
+      "en": "ggufbill reads the model file's identity and writes your verified serving config into a manifest that travels with the model across machines and rebuilds."
+    },
+    "command": "ggufbill emit ./Qwen3-27B-Q4_K_M.gguf --context 32768 --kv Q8_0",
+    "cta": { "zh": "开始使用", "en": "Get started" },
+    "ctaGithub": { "zh": "在 GitHub 查看", "en": "View on GitHub" }
+  },
+  "advantages": [
+    {
+      "title": { "zh": "重建不丢配置", "en": "Configs survive a rebuild" },
+      "body": {
+        "zh": "一份清单随模型文件一起走，换机器、重装环境都不用手抄第二遍——已验证的部署配置原样跟着模型走。",
+        "en": "One manifest travels with the model file, so a new machine or a fresh install never costs you a re-typed config — your verified deployment rides along as-is."
+      },
+      "chips": [
+        "› 随模型跨机器传播",
+        "› 跨重建不丢"
+      ]
+    },
+    {
+      "title": { "zh": "一份文件，记全整个部署", "en": "One file for the whole deployment" },
+      "body": {
+        "zh": "上下文长度、显存、GPU 拓扑、已知坑——你验证过的每一项配置都收进同一份清单，不再散落在帖子和便签里。",
+        "en": "Context length, VRAM, GPU topology, known quirks — every setting you verified lands in one manifest, instead of scattered across posts and sticky notes."
+      },
+      "chips": [
+        "› 上下文 · 显存 · GPU 拓扑",
+        "› 已知坑也写进去"
+      ]
+    },
+    {
+      "title": { "zh": "每个盒子都有可核验的凭证", "en": "Every box has a verifiable record" },
+      "body": {
+        "zh": "责任人、采购单号、等保级别在生成时就写进清单——审计方拿到的是每个盒子一份、对得上号的部署凭证，不用再翻帖子反推。",
+        "en": "Operator, procurement ref, and 等保 level are written into the manifest at emit time — auditors get a deployment record for each box that actually matches, no more reverse-engineering posts."
+      },
+      "chips": [
+        "› 责任人 · 采购单号",
+        "› 等保级别随包留存"
+      ]
+    },
+    {
+      "title": { "zh": "本地一条命令，永久免费", "en": "One local command, free forever" },
+      "body": {
+        "zh": "一条命令装好，不联网注册、数据不出门；工具与清单格式永久 MIT 免费，核心动作永不设墙。",
+        "en": "One command installs it — no sign-up, no network round-trip, your data never leaves the box; the tool and format are MIT free forever, and the core act is never gated."
+      },
+      "chips": [
+        "› 单命令装好",
+        "› 数据不出门",
+        "› MIT 永久免费"
+      ]
+    }
+  ],
+  "scene": {
+    "kind": "mesh"
+  },
+  "cta": {
+    "headline": {
+      "zh": "现在就给你的模型配一份清单",
+      "en": "Give your model a manifest today"
+    },
+    "sub": {
+      "zh": "一条命令，让每个 GGUF 部署可复现、可核验。开源、MIT、本地优先。",
+      "en": "One command makes every GGUF deployment reproducible and verifiable. Open source, MIT, local-first."
+    },
+    "button": { "zh": "在 GitHub 上开始", "en": "Get started on GitHub" }
+  },
+  "footer": {
+    "tag": {
+      "zh": "随 GGUF 传播的部署清单，MIT 免费",
+      "en": "The deployment manifest that travels with your GGUF — MIT free"
+    }
+  }
+}
