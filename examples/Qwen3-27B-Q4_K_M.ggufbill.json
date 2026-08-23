@@ -1,0 +1,37 @@
+{
+  "$schema": "https://ggufbill.org/v0.1/manifest.schema.json",
+  "manifest_version": "0.1",
+  "model": {
+    "name": "Qwen3-27B",
+    "arch": "qwen2",
+    "quant": "Q4_K_M",
+    "params_b": 27,
+    "file": "qwen3-27b-q4_k_m.gguf",
+    "sha256": "8c68c1bac72d868cd5f2946b6c8f1afd6bcbde38bbc63fe6bc12c788f110ad0a"
+  },
+  "runtime": {
+    "engine": "llama.cpp",
+    "engine_build": "b10181",
+    "context_length": 32768,
+    "kv_cache_dtype": "Q8_0",
+    "gpu_layers": -1
+  },
+  "hardware": {
+    "min_vram_gb": 16,
+    "target_gpus": [
+      "RTX-3060-12GB"
+    ],
+    "gpu_count": 1,
+    "notes": "16GB VRAM 单卡;参考 r/LocalLLaMA 1M tokens 帖的 Qwen3-27B 配置"
+  },
+  "quirks": {
+    "tool_calling": true
+  },
+  "audit": {
+    "emitted_at": "2026-08-23T07:23:44.843387Z",
+    "emitted_by": "ggufbill 0.1.0",
+    "operator": "信创运维-demo",
+    "procurement_ref": "信创采购-2026-GPU-014",
+    "等保_level": "等保三级"
+  }
+}

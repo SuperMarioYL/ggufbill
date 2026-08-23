@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ggufbill.org/v0.1/manifest.schema.json",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Canonical JSON Schema location for this manifest format"
+    },
+    "manifest_version": {
+      "type": "string",
+      "description": "Manifest format version"
+    },
+    "model": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Model name from general.name"
+        },
+        "arch": {
+          "type": "string",
+          "description": "Model architecture from general.architecture"
+        },
+        "quant": {
+          "type": "string",
+          "description": "Quantization variant e.g. Q4_K_M"
+        },
+        "params_b": {
+          "type": "number",
+          "description": "Parameter count in billions"
+        },
+        "file": {
+          "type": "string",
+          "description": "Portable GGUF filename basename without directory"
+        },
+        "sha256": {
+          "type": "string",
+          "description": "SHA-256 of the whole .gguf file"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "name",
+        "arch",
+        "quant",
+        "params_b",
+        "file",
+        "sha256"
+      ],
+      "description": "Model identity read from the GGUF header"
+    },
+    "runtime": {
+      "properties": {
+        "engine": {
+          "type": "string",
+          "description": "Inference engine"
+        },
+        "engine_build": {
+          "type": "string",
+          "description": "Engine build identifier e.g. b10181"
+        },
+        "context_length": {
+          "type": "integer",
+          "description": "Serving context length in tokens"
+        },
+        "kv_cache_dtype": {
+          "type": "string",
+          "description": "KV cache dtype e.g. Q8_0 or f16"
+        },
+        "gpu_layers": {
+          "type": "integer",
+          "description": "Layers offloaded to GPU (-1 = all)"
+        },
+        "extra_flags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Additional validated engine flags"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "engine",
+        "engine_build",
+        "context_length",
+        "kv_cache_dtype",
+        "gpu_layers"
+      ],
+      "description": "llama.cpp runtime configuration the operator validated"
+    },
+    "hardware": {
+      "properties": {
+        "min_vram_gb": {
+          "type": "integer",
+          "description": "Minimum VRAM per GPU in GB"
+        },
+        "target_gpus": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "GPU models the config was validated on"
+        },
+        "gpu_count": {
+          "type": "integer",
+          "description": "Number of GPUs in the deployment"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Free-form hardware notes"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "min_vram_gb",
+        "target_gpus",
+        "gpu_count"
+      ],
+      "description": "Target GPU hardware the deployment was tuned for"
+    },
+    "quirks": {
+      "properties": {
+        "tool_calling": {
+          "type": "boolean",
+          "description": "Whether tool calling is reliable on this config"
+        },
+        "known_breakages": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Known failure modes on this quant/config"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "tool_calling"
+      ],
+      "description": "Known behavioral quirks of this quant on this config"
+    },
+    "audit": {
+      "properties": {
+        "emitted_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the manifest was emitted (RFC3339)"
+        },
+        "emitted_by": {
+          "type": "string",
+          "description": "ggufbill version that emitted the manifest"
+        },
+        "operator": {
+          "type": "string",
+          "description": "Operator accountable for this deployment"
+        },
+        "procurement_ref": {
+          "type": "string",
+          "description": "Procurement / asset reference for sign-off"
+        },
+        "等保_level": {
+          "type": "string",
+          "description": "等保 (classified protection) level claimed for this deployment"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "emitted_at",
+        "emitted_by",
+        "operator"
+      ],
+      "description": "等保 / procurement audit provenance"
+    }
+  },
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "$schema",
+    "manifest_version",
+    "model",
+    "runtime",
+    "hardware",
+    "quirks",
+    "audit"
+  ],
+  "title": "GGUF Deployment Manifest",
+  "description": "A portable sidecar (.ggufbill.json) that travels with a .gguf and declares the llama.cpp runtime, hardware target, known quirks, and 等保 audit provenance needed to reproduce and audit a deployment."
+}

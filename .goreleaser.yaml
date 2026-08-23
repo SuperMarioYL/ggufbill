@@ -1,0 +1,56 @@
+version: 2
+
+project_name: ggufbill
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: ggufbill
+    main: ./cmd/ggufbill
+    binary: ggufbill
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+
+archives:
+  - id: default
+    ids:
+      - ggufbill
+    formats:
+      - tar.gz
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_
+      {{- if eq .Os "darwin" }}macos{{ else }}{{ .Os }}{{ end }}_
+      {{- if eq .Arch "amd64" }}x86_64{{ else }}{{ .Arch }}{{ end }}
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+
+checksum:
+  name_template: "checksums.txt"
+  algorithm: sha256
+
+snapshot:
+  version_template: "{{ .Version }}-next"
+
+changelog:
+  use: git
+  sort: depth
+  filters:
+    exclude:
+      - "^test:"
+      - "^docs:"
+      - "^chore:"
+      - "Merge pull request"
+      - "Merge branch"

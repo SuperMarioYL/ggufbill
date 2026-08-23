@@ -1,0 +1,39 @@
+# Binaries
+/bin/
+/dist/
+/ggufbill
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go build / test artifacts
+vendor/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local environment / secrets
+.env
+.env.local
+
+# Build scratch
+.builder_*
+.build_metadata*
+_build_ctx.json
+.stage_*
+.spawn.*
+PUBLISH_BLOCKED.md
+BUILD_SETUP_NEXT_STEPS.md
+
+# Agent / assistant local config
+.claude/
+CLAUDE.md
