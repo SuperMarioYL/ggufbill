@@ -1,92 +1,229 @@
 {
-  "schema": 1,
+  "schema": 3,
   "name": "ggufbill",
   "github": "https://github.com/SuperMarioYL/ggufbill",
   "host": "ggufbill.lei6393.com",
-  "lang": { "primary": "zh", "toggle": true },
-  "accent": ["#0071e3"],
+  "palette": "auto",
+  "lang": {
+    "primary": "zh",
+    "toggle": true
+  },
+  "meta": {
+    "visual_profile": "neon-particle",
+    "demo_source": "docs/demo-results.json",
+    "implementation_version": "0.1.0"
+  },
   "hero": {
     "eyebrow": {
-      "zh": "本地 · 单命令 · 随包传播 · 可核验",
-      "en": "Local · One command · Travels with the model · Verifiable"
+      "zh": "开发工具 · 本地示例",
+      "en": "DEVELOPER TOOL · LOCAL EXAMPLE"
     },
     "headline": {
-      "zh": "手写的部署配置\n随模型一起传播",
-      "en": "Hand-written serving configs\nnow travel with the model"
+      "zh": "配置不只留在聊天里，\n也跟着文件走。",
+      "en": "Keep the deployment context.\nCarry it with the file."
     },
     "sub": {
-      "zh": "ggufbill 读出模型文件的身份，把你验证过的部署配置写成一份清单，随模型文件跨机器、跨重建传播。",
-      "en": "ggufbill reads the model file's identity and writes your verified serving config into a manifest that travels with the model across machines and rebuilds."
+      "zh": "ggufbill 读取 GGUF 元数据与整文件摘要，把操作者填写的运行参数、硬件条件和部署说明保存为 JSON 旁挂清单。",
+      "en": "ggufbill reads GGUF metadata and a whole-file digest, then saves operator-supplied runtime settings, hardware requirements and deployment notes in a JSON sidecar."
     },
-    "command": "ggufbill emit ./Qwen3-27B-Q4_K_M.gguf --context 32768 --kv Q8_0",
-    "cta": { "zh": "开始使用", "en": "Get started" },
-    "ctaGithub": { "zh": "在 GitHub 查看", "en": "View on GitHub" }
+    "href": "#quickstart",
+    "cta": {
+      "zh": "运行示例",
+      "en": "Run the example"
+    },
+    "ctaGithub": {
+      "zh": "查看源码",
+      "en": "View source"
+    }
+  },
+  "scene": {
+    "kind": "neon-graph",
+    "fallback": "/assets/presentation/scene-dark.svg",
+    "fallbackLight": "/assets/presentation/scene-light.svg",
+    "caption": {
+      "zh": "让模型文件带上部署说明",
+      "en": "Keep deployment notes beside the model file."
+    }
   },
   "advantages": [
     {
-      "title": { "zh": "重建不丢配置", "en": "Configs survive a rebuild" },
-      "body": {
-        "zh": "一份清单随模型文件一起走，换机器、重装环境都不用手抄第二遍——已验证的部署配置原样跟着模型走。",
-        "en": "One manifest travels with the model file, so a new machine or a fresh install never costs you a re-typed config — your verified deployment rides along as-is."
+      "title": {
+        "zh": "关联具体文件",
+        "en": "Identify the file"
       },
-      "chips": [
-        "› 随模型跨机器传播",
-        "› 跨重建不丢"
-      ]
+      "body": {
+        "zh": "整文件 SHA-256 与元数据进入同一清单。",
+        "en": "Whole-file SHA-256 and metadata appear in the same manifest."
+      }
     },
     {
-      "title": { "zh": "一份文件，记全整个部署", "en": "One file for the whole deployment" },
-      "body": {
-        "zh": "上下文长度、显存、GPU 拓扑、已知坑——你验证过的每一项配置都收进同一份清单，不再散落在帖子和便签里。",
-        "en": "Context length, VRAM, GPU topology, known quirks — every setting you verified lands in one manifest, instead of scattered across posts and sticky notes."
+      "title": {
+        "zh": "保留运行参数",
+        "en": "Keep runtime settings"
       },
-      "chips": [
-        "› 上下文 · 显存 · GPU 拓扑",
-        "› 已知坑也写进去"
-      ]
+      "body": {
+        "zh": "context、KV 类型和 engine build 由操作者明确填写。",
+        "en": "Operators explicitly record context, KV type and engine build."
+      }
     },
     {
-      "title": { "zh": "每个盒子都有可核验的凭证", "en": "Every box has a verifiable record" },
-      "body": {
-        "zh": "责任人、采购单号、等保级别在生成时就写进清单——审计方拿到的是每个盒子一份、对得上号的部署凭证，不用再翻帖子反推。",
-        "en": "Operator, procurement ref, and 等保 level are written into the manifest at emit time — auditors get a deployment record for each box that actually matches, no more reverse-engineering posts."
+      "title": {
+        "zh": "使用机器可读交接",
+        "en": "Use structured handover"
       },
-      "chips": [
-        "› 责任人 · 采购单号",
-        "› 等保级别随包留存"
-      ]
-    },
-    {
-      "title": { "zh": "本地一条命令，永久免费", "en": "One local command, free forever" },
       "body": {
-        "zh": "一条命令装好，不联网注册、数据不出门；工具与清单格式永久 MIT 免费，核心动作永不设墙。",
-        "en": "One command installs it — no sign-up, no network round-trip, your data never leaves the box; the tool and format are MIT free forever, and the core act is never gated."
-      },
-      "chips": [
-        "› 单命令装好",
-        "› 数据不出门",
-        "› MIT 永久免费"
-      ]
+        "zh": "JSON 便于检查、版本管理与外部工具读取。",
+        "en": "JSON supports inspection, version control and external readers."
+      }
     }
   ],
-  "scene": {
-    "kind": "mesh"
-  },
-  "cta": {
-    "headline": {
-      "zh": "现在就给你的模型配一份清单",
-      "en": "Give your model a manifest today"
+  "story": {
+    "intro": {
+      "title": {
+        "zh": "让模型文件带上部署说明",
+        "en": "Keep deployment notes beside the model file."
+      },
+      "body": {
+        "zh": "只保留模型文件，往往会丢掉当时使用的上下文长度、KV 类型和 engine build。把这些字段放在相邻清单中，交接和复查时就有明确记录。清单记录的是输入与声明，不会自动证明某个部署能运行或符合审计要求。",
+        "en": "Keeping only the model file can lose the context length, KV type and engine build used with it. A neighboring manifest makes those settings available for handover and review. The manifest records inputs and declarations; it does not prove a deployment runs or satisfies an audit requirement."
+      }
     },
-    "sub": {
-      "zh": "一条命令，让每个 GGUF 部署可复现、可核验。开源、MIT、本地优先。",
-      "en": "One command makes every GGUF deployment reproducible and verifiable. Open source, MIT, local-first."
-    },
-    "button": { "zh": "在 GitHub 上开始", "en": "Get started on GitHub" }
+    "sections": [
+      {
+        "title": {
+          "zh": "从输入到结果",
+          "en": "From input to result"
+        },
+        "body": {
+          "zh": "脚本使用仓库的 318 字节 metadata-only GGUF，写出临时清单并回读字段。结果确认完整文件 SHA-256 一致、context_length=4096、kv=f16、operator=demo-operator。Qwen3-27B 是该构造文件的元数据名称，并非加载了 27B 权重。",
+          "en": "The script uses the repository’s 318-byte metadata-only GGUF, emits a temporary manifest and reads its fields. It confirms a matching whole-file SHA-256, context_length=4096, kv=f16 and operator=demo-operator. Qwen3-27B is the fixture’s metadata name; no 27B weights are loaded."
+        },
+        "image": {
+          "light": "/assets/presentation/process-light.svg",
+          "dark": "/assets/presentation/process-dark.svg",
+          "alt": {
+            "zh": "从输入到结果",
+            "en": "From input to result"
+          }
+        }
+      },
+      {
+        "title": {
+          "zh": "实现中的分工",
+          "en": "How the implementation fits together"
+        },
+        "body": {
+          "zh": "GGUF reader 提取名称、架构、量化和参数元数据并计算 SHA-256；emit 收集运行/硬件/操作者字段；manifest.Validate 检查必需值后写 JSON。inspect、audit 和 llama-server 调用合成目前都是后续里程碑接口。",
+          "en": "The GGUF reader extracts identity, architecture, quantization and parameter metadata and computes SHA-256. emit collects runtime, hardware and operator fields; manifest.Validate checks required values before JSON is written. inspect, audit and llama-server command synthesis are later-milestone interfaces."
+        },
+        "image": {
+          "light": "/assets/presentation/architecture-light.svg",
+          "dark": "/assets/presentation/architecture-dark.svg",
+          "alt": {
+            "zh": "实现中的分工",
+            "en": "How the implementation fits together"
+          }
+        }
+      },
+      {
+        "title": {
+          "zh": "接入现有工作流",
+          "en": "Connect existing workflows"
+        },
+        "body": {
+          "zh": "ggufbill 读取 GGUF 元数据与整文件摘要，把操作者填写的运行参数、硬件条件和部署说明保存为 JSON 旁挂清单。",
+          "en": "ggufbill reads GGUF metadata and a whole-file digest, then saves operator-supplied runtime settings, hardware requirements and deployment notes in a JSON sidecar."
+        },
+        "image": {
+          "light": "/assets/presentation/integrations-light.svg",
+          "dark": "/assets/presentation/integrations-dark.svg",
+          "alt": {
+            "zh": "接入现有工作流",
+            "en": "Connect existing workflows"
+          }
+        }
+      }
+    ],
+    "details": [
+      {
+        "title": {
+          "zh": "配置与边界",
+          "en": "Configuration and limits"
+        },
+        "body": {
+          "zh": "当前只实现 emit；inspect、audit 和执行命令合成尚未实现。",
+          "en": "Only emit is implemented; inspect, audit and execution-command synthesis are not."
+        }
+      }
+    ]
   },
+  "demo": {
+    "title": {
+      "zh": "运行自带示例",
+      "en": "Run the supplied example"
+    },
+    "note": {
+      "zh": "v0.1.0 的真实 emit 和 JSON 回读。硬件、工具调用可靠性和监管符合性均未测试，临时文件结束后清理。",
+      "en": "Real v0.1.0 emit and JSON readback. Hardware, tool-calling reliability and regulatory compliance are not tested; temporary files are removed afterward."
+    },
+    "source": "https://github.com/SuperMarioYL/ggufbill/blob/main/docs/demo-results.json",
+    "steps": [
+      {
+        "label": {
+          "zh": "运行 1",
+          "en": "Run 1"
+        },
+        "body": {
+          "zh": "脚本使用仓库的 318 字节 metadata-only GGUF，写出临时清单并回读字段。结果确认完整文件 SHA-256 一致、context_length=4096、kv=f16、operator=demo-operator。Qwen3-27B 是该构造文件的元数据名称，并非加载了 27B 权重。",
+          "en": "The script uses the repository’s 318-byte metadata-only GGUF, emits a temporary manifest and reads its fields. It confirms a matching whole-file SHA-256, context_length=4096, kv=f16 and operator=demo-operator. Qwen3-27B is the fixture’s metadata name; no 27B weights are loaded."
+        },
+        "image": "/assets/presentation/demo-0-light.svg",
+        "imageDark": "/assets/presentation/demo-0-dark.svg",
+        "command": "python3 examples/presentation_demo.py",
+        "output": "{\n  \"manifest_version\": \"0.1\",\n  \"model_name\": \"Qwen3-27B\",\n  \"fixture_bytes\": 318,\n  \"sha256_matches\": true,\n  \"context_length\": 4096,\n  \"kv_cache_dtype\": \"f16\",\n  \"operator\": \"demo-operator\"\n}\n"
+      }
+    ]
+  },
+  "quickstart": {
+    "title": {
+      "zh": "运行完整示例",
+      "en": "Run the complete example"
+    },
+    "body": {
+      "zh": "需要 Go 1.24+；完整自清理示例使用 Python 3。首次构建可能下载 Go 模块，示例不下载模型。",
+      "en": "Requires Go 1.24+ and Python 3 for the self-cleaning demo. Initial builds may download Go modules; the example downloads no model."
+    },
+    "steps": [
+      {
+        "title": {
+          "zh": "准备环境",
+          "en": "Prepare the environment"
+        },
+        "code": "git clone https://github.com/SuperMarioYL/ggufbill.git\ncd ggufbill\ngo build -o ggufbill ./cmd/ggufbill"
+      },
+      {
+        "title": {
+          "zh": "运行本地示例",
+          "en": "Run the local example"
+        },
+        "code": "python3 examples/presentation_demo.py"
+      }
+    ]
+  },
+  "limitations": [
+    {
+      "zh": "当前只实现 emit；inspect、audit 和执行命令合成尚未实现。",
+      "en": "Only emit is implemented; inspect, audit and execution-command synthesis are not."
+    },
+    {
+      "zh": "清单字段不证明硬件适配、推理成功、工具可靠性或合规。",
+      "en": "Manifest fields do not prove hardware suitability, successful inference, tool reliability or compliance."
+    }
+  ],
   "footer": {
     "tag": {
-      "zh": "随 GGUF 传播的部署清单，MIT 免费",
-      "en": "The deployment manifest that travels with your GGUF — MIT free"
+      "zh": "Go 1.24+ · Python 3 demo · MIT",
+      "en": "Go 1.24+ · Python 3 demo · MIT"
     }
   }
 }

@@ -1,0 +1,90 @@
+{
+  "name": "ggufbill",
+  "tagline": "Keep deployment notes beside the model file.",
+  "architecture": {
+    "title": "File identity meets operator context",
+    "nodes": [
+      {
+        "title": "GGUF file",
+        "detail": "Metadata and byte identity"
+      },
+      {
+        "title": "Reader",
+        "detail": "Header fields and SHA-256"
+      },
+      {
+        "title": "Operator fields",
+        "detail": "Runtime, hardware and notes"
+      },
+      {
+        "title": "Manifest",
+        "detail": "Required-value validation"
+      },
+      {
+        "title": "JSON sidecar",
+        "detail": "Portable recorded context"
+      }
+    ],
+    "edges": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        4
+      ]
+    ]
+  },
+  "process": {
+    "title": "Emit one fixture manifest",
+    "steps": [
+      {
+        "title": "Read 318-byte fixture",
+        "detail": "Metadata only, no weights"
+      },
+      {
+        "title": "Provide settings",
+        "detail": "4096 context, f16 KV"
+      },
+      {
+        "title": "Emit sidecar",
+        "detail": "Temporary JSON file"
+      },
+      {
+        "title": "Read back identity",
+        "detail": "Whole-file SHA-256 matches"
+      }
+    ],
+    "result": "Real emit; no inference or compliance test."
+  },
+  "integrations": {
+    "title": "Current input and output format",
+    "items": [
+      {
+        "title": "GGUF",
+        "detail": "Model metadata input"
+      },
+      {
+        "title": "CLI fields",
+        "detail": "Operator declarations"
+      },
+      {
+        "title": "JSON",
+        "detail": "Deployment sidecar"
+      },
+      {
+        "title": "Schema",
+        "detail": "Repository format definition"
+      }
+    ]
+  }
+}

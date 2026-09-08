@@ -1,0 +1,10 @@
+{
+  "version": "0.1.0",
+  "fixture": "Repository metadata-only GGUF fixture; generated manifest fields and whole-file digest checked. No model weights, inference or compliance evaluation.",
+  "steps": [
+    {
+      "command": "python3 examples/presentation_demo.py",
+      "output": "{\n  \"manifest_version\": \"0.1\",\n  \"model_name\": \"Qwen3-27B\",\n  \"fixture_bytes\": 318,\n  \"sha256_matches\": true,\n  \"context_length\": 4096,\n  \"kv_cache_dtype\": \"f16\",\n  \"operator\": \"demo-operator\"\n}\n"
+    }
+  ]
+}

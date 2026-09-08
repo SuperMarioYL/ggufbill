@@ -1,0 +1,38 @@
+{
+  "mode": "auto",
+  "id": "5699e6-726ae7-aceaf6-87dba52b9269",
+  "identity": "https://github.com/supermarioyl/ggufbill",
+  "primary": "#5699e6",
+  "secondary": "#726ae7",
+  "highlight": "#aceaf6",
+  "dark": {
+    "bg": "#050912",
+    "panel": "#0c131f",
+    "code": "#0a111d",
+    "ink": "#eefbfd",
+    "muted": "#95aac4",
+    "line": "#172941",
+    "primary": "#5699e6",
+    "secondary": "#746de7",
+    "highlight": "#aceaf6",
+    "accent": "#5699e6",
+    "buttonStart": "#4479b7",
+    "buttonEnd": "#6e66df",
+    "buttonText": "#ffffff"
+  },
+  "light": {
+    "bg": "#f9fbfe",
+    "panel": "#f7fafe",
+    "code": "#f3f8fd",
+    "ink": "#131f30",
+    "muted": "#556b88",
+    "line": "#cbe0f7",
+    "primary": "#4174af",
+    "secondary": "#6a62d7",
+    "highlight": "#58777e",
+    "accent": "#4174af",
+    "buttonStart": "#4479b7",
+    "buttonEnd": "#6e66df",
+    "buttonText": "#ffffff"
+  }
+}
