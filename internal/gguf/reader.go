@@ -172,7 +172,8 @@ func sumTensorParams(path string, tensorCount uint64) (uint64, error) {
 	}
 	defer f.Close()
 	br := bufio.NewReaderSize(f, 1<<20)
-	if _, err := io.CopyN(io.Discard, br, 4+4+8+8); err != nil {
+	// Skip magic(4) + version(4) + tensor_count(8); kv_count is read next.
+	if _, err := io.CopyN(io.Discard, br, 4+4+8); err != nil {
 		return 0, err
 	}
 	// Skip the KV block to reach tensor info.
@@ -206,11 +207,12 @@ func sumTensorParams(path string, tensorCount uint64) (uint64, error) {
 		}
 		ne := uint64(1)
 		for d := uint32(0); d < nDims; d++ {
-			dim, err := readU32(br)
+			// GGUF v2/v3 pack each ne dimension as uint64 (gguf-py "Q").
+			dim, err := readU64(br)
 			if err != nil {
 				return 0, err
 			}
-			ne *= uint64(dim)
+			ne *= dim
 		}
 		// type(4) + offset(8) follow the dims.
 		if _, err := readU32(br); err != nil {

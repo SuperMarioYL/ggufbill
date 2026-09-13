@@ -1,6 +1,9 @@
 package gguf
 
 import (
+	"bytes"
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -58,6 +61,48 @@ func TestReadNotGGUF(t *testing.T) {
 func TestReadMissing(t *testing.T) {
 	if _, err := Read("testdata/does-not-exist.gguf"); err == nil {
 		t.Fatal("expected error for missing file, got nil")
+	}
+}
+
+// TestReadParamsFallback covers GGUFs that predate general.n_params: the
+// parameter count must fall back to summing tensor nelements, which requires
+// walking the KV block once and reading each ne dimension as uint64 (GGUF
+// v2/v3 width). Regression test for the v0.1.0 misparse — a doubled kv_count
+// read plus 32-bit dimension fields — which silently degraded params_b to 0.
+func TestReadParamsFallback(t *testing.T) {
+	var buf bytes.Buffer
+	w := fixtureWriter{w: &buf}
+	w.bytes("GGUF")
+	w.u32(3) // version
+	w.u64(1) // tensor_count
+	w.u64(2) // kv_count
+	w.str("general.architecture")
+	w.u32(typString)
+	w.str("qwen2")
+	w.str("general.name")
+	w.u32(typString)
+	w.str("LegacyModel")
+	// One tensor with 5e9 elements: the first dim exceeds uint32 range, so a
+	// 32-bit dim read misaligns the rest of the record.
+	w.tensor("token_embd.weight", 5_000_000_000)
+	if w.err != nil {
+		t.Fatalf("build fixture: %v", w.err)
+	}
+
+	path := filepath.Join(t.TempDir(), "legacy.gguf")
+	if err := os.WriteFile(path, buf.Bytes(), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	h, err := Read(path)
+	if err != nil {
+		t.Fatalf("Read: %v", err)
+	}
+	if h.Architecture != "qwen2" || h.Name != "LegacyModel" {
+		t.Errorf("header = %q/%q, want qwen2/LegacyModel", h.Architecture, h.Name)
+	}
+	if h.ParamsB != 5 {
+		t.Errorf("ParamsB = %g, want 5 (5e9 summed tensor elements)", h.ParamsB)
 	}
 }
 

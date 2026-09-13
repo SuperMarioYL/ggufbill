@@ -116,3 +116,17 @@ func (x *fixtureWriter) str(s string) {
 	x.u64(uint64(len(s)))
 	x.bytes(s)
 }
+
+// tensor appends one tensor-info record: name, n_dims (uint32), the ne
+// dimensions as uint64 (GGUF v2/v3 width — gguf-py packs each dim with "Q"),
+// then type (uint32) and offset (uint64). Used by reader tests that exercise
+// the tensor-info path (e.g. the params fallback).
+func (x *fixtureWriter) tensor(name string, dims ...uint64) {
+	x.str(name)
+	x.u32(uint32(len(dims)))
+	for _, d := range dims {
+		x.u64(d)
+	}
+	x.u32(0) // ggml type — unused by the reader's element sum
+	x.u64(0) // offset — unused by the reader's element sum
+}
