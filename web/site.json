@@ -175,8 +175,8 @@
       "en": "Run the supplied example"
     },
     "note": {
-      "zh": "v0.2.0 的真实 emit 和 JSON 回读。硬件、工具调用可靠性和监管符合性均未测试，临时文件结束后清理。",
-      "en": "Real v0.2.0 emit and JSON readback. Hardware, tool-calling reliability and regulatory compliance are not tested; temporary files are removed afterward."
+      "zh": "真实 emit 和 JSON 回读（演示录制于 v0.1.0，v0.2.0 的命令与输出保持一致）。硬件、工具调用可靠性和监管符合性均未测试，临时文件结束后清理。",
+      "en": "Real emit and JSON readback (recorded on v0.1.0; the commands and output are unchanged in v0.2.0). Hardware, tool-calling reliability and regulatory compliance are not tested; temporary files are removed afterward."
     },
     "source": "https://github.com/SuperMarioYL/ggufbill/blob/main/docs/demo-results.json",
     "steps": [

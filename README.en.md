@@ -88,7 +88,7 @@ Protection-level labels, hardware capacity and tool_calling are declarations tha
 
 ## Recorded demo
 
-Real v0.2.0 emit and JSON readback. Hardware, tool-calling reliability and regulatory compliance are not tested; temporary files are removed afterward.
+Real emit and JSON readback (recorded on v0.1.0; the commands and output are unchanged in v0.2.0). Hardware, tool-calling reliability and regulatory compliance are not tested; temporary files are removed afterward.
 
 [Inputs, commands and complete output](docs/demo-results.json)
 
