@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -87,6 +88,13 @@ func runEmit(args []string) error {
 	}
 
 	interactive := isStdinTTY() && !nonInter
+	// All prompts of one run read through a single buffered stdin: a pasted
+	// multi-line answer arrives in one chunk, and per-prompt buffers would
+	// swallow every line after the first.
+	var prompts *prompter
+	if interactive {
+		prompts = newPrompter()
+	}
 
 	// Resolve the operator-controlled fields. Flags win; otherwise we prompt
 	// (when interactive) for the *required* fields only — context, kv, operator.
@@ -94,14 +102,14 @@ func runEmit(args []string) error {
 	// on a field the operator can also edit in the JSON later.
 	if context <= 0 {
 		if interactive {
-			context = promptInt64("Serving context length (tokens)", 4096)
+			context = prompts.askInt64("Serving context length (tokens)", 4096)
 		} else {
 			return fmt.Errorf("emit: --context is required (or run interactively)")
 		}
 	}
 	if kv == "" {
 		if interactive {
-			kv = prompt("KV cache dtype (e.g. Q8_0, f16)", "f16")
+			kv = prompts.ask("KV cache dtype (e.g. Q8_0, f16)", "f16")
 		} else {
 			kv = "f16"
 		}
@@ -111,7 +119,7 @@ func runEmit(args []string) error {
 	}
 	if operator == "" {
 		if interactive {
-			operator = prompt("Operator name", defaultOperator())
+			operator = prompts.ask("Operator name", defaultOperator())
 		} else {
 			return fmt.Errorf("emit: --operator is required (or run interactively)")
 		}
@@ -227,13 +235,26 @@ func isStdinTTY() bool {
 	return fi.Mode()&os.ModeCharDevice != 0
 }
 
-func prompt(label, def string) string {
+// prompter asks the operator for missing fields. It wraps ONE buffered reader
+// so consecutive questions consume a pasted multi-line answer in order instead
+// of discarding buffered lines (a fresh bufio.Reader per prompt would swallow
+// everything after the first line).
+type prompter struct {
+	in  *bufio.Reader
+	out io.Writer
+}
+
+func newPrompter() *prompter {
+	return &prompter{in: bufio.NewReader(os.Stdin), out: os.Stdout}
+}
+
+func (p *prompter) ask(label, def string) string {
 	if def != "" {
-		fmt.Printf("%s [%s]: ", label, def)
+		fmt.Fprintf(p.out, "%s [%s]: ", label, def)
 	} else {
-		fmt.Printf("%s: ", label)
+		fmt.Fprintf(p.out, "%s: ", label)
 	}
-	line, _ := bufio.NewReader(os.Stdin).ReadString('\n')
+	line, _ := p.in.ReadString('\n')
 	line = strings.TrimSpace(line)
 	if line == "" {
 		return def
@@ -241,8 +262,8 @@ func prompt(label, def string) string {
 	return line
 }
 
-func promptInt64(label string, def int64) int64 {
-	s := prompt(label, strconv.FormatInt(def, 10))
+func (p *prompter) askInt64(label string, def int64) int64 {
+	s := p.ask(label, strconv.FormatInt(def, 10))
 	if s == "" {
 		return def
 	}
