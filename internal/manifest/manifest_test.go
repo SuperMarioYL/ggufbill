@@ -2,6 +2,7 @@ package manifest
 
 import (
 	"encoding/json"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -28,6 +29,26 @@ func TestSchema(t *testing.T) {
 	}
 	if !strings.Contains(string(out), "\"$schema\"") {
 		t.Error("schema missing $schema property")
+	}
+}
+
+// TestSchemaMatchesCommittedFile pins schemas/manifest.v0.1.json to the Go
+// structs: the committed file must equal a fresh manifest.Schema() marshal
+// byte-for-byte. The struct is the single source of truth — a manifest struct
+// edit must regenerate the committed schema (or this test fails), and a
+// hand-edit of the committed schema without a struct change fails too.
+func TestSchemaMatchesCommittedFile(t *testing.T) {
+	out, err := json.MarshalIndent(Schema(), "", "  ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	out = append(out, '\n')
+	committed, err := os.ReadFile("../../schemas/manifest.v0.1.json")
+	if err != nil {
+		t.Fatalf("read committed schema: %v", err)
+	}
+	if string(out) != string(committed) {
+		t.Error("schemas/manifest.v0.1.json does not match manifest.Schema() — regenerate the committed schema after changing the manifest structs")
 	}
 }
 

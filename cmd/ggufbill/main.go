@@ -17,8 +17,9 @@ import (
 
 // version is the ggufbill build version. It defaults to the repo VERSION file
 // value; the release workflow injects the tagged version via -ldflags
-// -X main.version. Keep the default in sync with the VERSION file.
-var version = "0.1.0"
+// -X main.version. Keep the default in sync with the VERSION file —
+// TestVersionLockstep fails if they drift.
+var version = "0.2.0"
 
 func main() {
 	args := os.Args
