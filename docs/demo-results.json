@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "fixture": "Repository metadata-only GGUF fixture; generated manifest fields and whole-file digest checked. No model weights, inference or compliance evaluation.",
   "steps": [
     {
