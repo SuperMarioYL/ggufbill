@@ -46,7 +46,7 @@ snapshot:
 
 changelog:
   use: git
-  sort: depth
+  sort: asc
   filters:
     exclude:
       - "^test:"
