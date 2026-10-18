@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -109,5 +110,68 @@ func TestReadParamsFallback(t *testing.T) {
 func TestBaseName(t *testing.T) {
 	if got := BaseName("/tmp/models/Qwen3-27B-Q4_K_M.gguf"); got != "Qwen3-27B-Q4_K_M.gguf" {
 		t.Errorf("BaseName = %q", got)
+	}
+}
+
+// TestReadQuantUnknownWhenUnlabeled guards the v0.2.0 defect where a GGUF
+// carrying neither general.quantization_name nor general.file_type resolved
+// its quant by falling through to ftypeName(0) — fabricating "F32" for a file
+// whose quant is simply unlabeled. "unknown" is the honest value.
+func TestReadQuantUnknownWhenUnlabeled(t *testing.T) {
+	var buf bytes.Buffer
+	w := fixtureWriter{w: &buf}
+	w.bytes("GGUF")
+	w.u32(3)
+	w.u64(0) // tensor_count
+	w.u64(1) // kv_count
+	w.str("general.name")
+	w.u32(typString)
+	w.str("BareModel")
+	if w.err != nil {
+		t.Fatalf("build fixture: %v", w.err)
+	}
+
+	path := filepath.Join(t.TempDir(), "bare.gguf")
+	if err := os.WriteFile(path, buf.Bytes(), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	h, err := Read(path)
+	if err != nil {
+		t.Fatalf("Read: %v", err)
+	}
+	if h.Quant != "unknown" {
+		t.Errorf("Quant = %q, want unknown (no quant metadata to resolve from)", h.Quant)
+	}
+}
+
+// TestReadV1Rejected guards the v0.2.0 defect where the version gate accepted
+// GGUF v1 but every subsequent read assumed the v2/v3 layout (u64 counts,
+// u64-length strings), so a v1 file died with a confusing mid-block misparse
+// error instead of a clean unsupported-version rejection.
+func TestReadV1Rejected(t *testing.T) {
+	var buf bytes.Buffer
+	w := fixtureWriter{w: &buf}
+	w.bytes("GGUF")
+	w.u32(1) // version 1 — v1 layout: u32 counts, u32-length strings
+	w.u32(0) // tensor_count
+	w.u32(1) // kv_count
+	w.u32(9)
+	w.bytes("general.n") // first (u32-length) KV key, truncated arbitrarily
+	if w.err != nil {
+		t.Fatalf("build fixture: %v", w.err)
+	}
+
+	path := filepath.Join(t.TempDir(), "v1.gguf")
+	if err := os.WriteFile(path, buf.Bytes(), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	h, err := Read(path)
+	if err == nil {
+		t.Fatalf("Read = %+v, want an unsupported-version error", h)
+	}
+	if !strings.Contains(err.Error(), "unsupported GGUF version") {
+		t.Errorf("err = %v, want a clean unsupported-version rejection", err)
 	}
 }

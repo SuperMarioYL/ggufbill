@@ -1,4 +1,4 @@
-// Package gguf provides a minimal, dependency-free reader for the GGUF v3
+// Package gguf provides a minimal, dependency-free reader for the GGUF v2/v3
 // file header. It extracts only the deployment-relevant metadata an operator
 // needs to record in a manifest: architecture, model name, quantization
 // variant, parameter count, and the file's sha256.
@@ -87,8 +87,11 @@ func Read(path string) (*Header, error) {
 	if err != nil {
 		return nil, err
 	}
-	if version < 1 || version > 3 {
-		return nil, fmt.Errorf("gguf: unsupported version %d", version)
+	// Only v2/v3 share the 64-bit layout parsed below (u64 counts,
+	// u64-length strings); v1 packs counts and string lengths as u32, so
+	// accepting it here would misparse every field past the gate.
+	if version < 2 || version > 3 {
+		return nil, fmt.Errorf("gguf: unsupported GGUF version %d (only v2/v3 are supported)", version)
 	}
 	tensorCount, err := readU64(br)
 	if err != nil {
@@ -133,11 +136,16 @@ func Read(path string) (*Header, error) {
 	h.Name = asString(meta["general.name"])
 
 	// Quant: prefer an explicit quantization_name string when the GGUF carries
-	// one; otherwise resolve from the general.file_type enum.
+	// one; otherwise resolve from the general.file_type enum. When the GGUF
+	// carries neither, "unknown" is the honest label — falling through to the
+	// enum table with the zero value would fabricate "F32" for a file whose
+	// quant is simply unlabeled.
 	if qn := asString(meta["general.quantization_name"]); qn != "" {
 		h.Quant = qn
+	} else if ft, ok := meta["general.file_type"]; ok {
+		h.Quant = ftypeName(uint32(asNumber(ft)))
 	} else {
-		h.Quant = ftypeName(uint32(asNumber(meta["general.file_type"])))
+		h.Quant = "unknown"
 	}
 
 	// Params: prefer general.n_params (recent GGUFs); fall back to summing
