@@ -24,7 +24,7 @@
 
 ## 架构
 
-GGUF reader 提取名称、架构、量化和参数元数据并计算 SHA-256；emit 收集运行/硬件/操作者字段；manifest.Validate 检查必需值后写 JSON。inspect、audit 和 llama-server 调用合成目前都是后续里程碑接口。
+GGUF reader 提取名称、架构、量化和参数元数据并计算 SHA-256；emit 收集运行/硬件/操作者字段；manifest.Validate 检查必需值后写 JSON。inspect 复核清单、重验文件哈希并合成准确的 llama-server 命令；audit 把多份清单汇总为等保审计视图。
 
 <picture>
   <source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="assets/presentation/architecture-mobile-dark.svg">
@@ -55,7 +55,8 @@ python3 examples/presentation_demo.py
 
 ```bash
 ./ggufbill emit internal/gguf/testdata/qwen3-27b-q4_k_m.gguf --context 4096 --kv f16 --operator demo-operator --non-interactive --output demo.ggufbill.json
-python3 -m json.tool demo.ggufbill.json
+./ggufbill inspect demo.ggufbill.json        # 重验哈希并打印准确的 llama-server 命令
+./ggufbill audit *.ggufbill.json > 等保-部署审计.md   # 逐盒等保审计视图(markdown;另有 --format html)
 ./ggufbill version
 ```
 
@@ -84,11 +85,11 @@ emit 可以交互式询问字段；脚本建议显式给 --context、--operator 
 
 常用参数包括 --context、--kv、--gpu、--gpu-count、--vram、--engine-build、--operator、--procurement-ref、--dengbao-level 和 --output。GPU 名称可逗号分隔或重复输入；engine build 未填写时为 unknown。
 
-等保级别、硬件容量和 tool_calling 都是声明字段，程序不核验它们。文件哈希用于关联字节身份，不是签名或来源认证。当前 inspect/audit 子命令只打印未实现提示，不应当作校验器或报表工具使用。
+等保级别、硬件容量和 tool_calling 都是声明字段，程序不核验它们。文件哈希用于关联字节身份，不是签名或来源认证。inspect 复核清单结构，在模型文件与清单同目录时重验整文件哈希（不一致则失败；模型缺失则报告 unverified），并打印准确的 llama-server 命令；audit 把多份清单汇总为 markdown 或 HTML 报告。两者记录的是声明与指纹，不构成合规性结论。
 
 ## 运行记录
 
-真实 emit 和 JSON 回读（演示录制于 v0.1.0，v0.2.0 的命令与输出保持一致）。硬件、工具调用可靠性和监管符合性均未测试，临时文件结束后清理。
+真实 emit 和 JSON 回读（演示录制于 v0.1.0，v0.3.0 的命令与输出保持一致）。硬件、工具调用可靠性和监管符合性均未测试，临时文件结束后清理。
 
 [输入、命令和完整输出](docs/demo-results.json)
 
@@ -98,8 +99,8 @@ emit 可以交互式询问字段；脚本建议显式给 --context、--operator 
 
 - [x] GGUF 读取、整文件摘要和清单生成。
 - [x] 交互/非交互输入与机器可读格式。
-- [ ] inspect 的文件复核和命令合成。
-- [ ] 多清单 audit 报告。
+- [x] inspect 的文件复核和命令合成。
+- [x] 多清单 audit 报告。
 - [ ] 更多引擎、签名与组织级管理。
 
 不提供已上线的收费审计看板。

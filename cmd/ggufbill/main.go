@@ -19,7 +19,7 @@ import (
 // value; the release workflow injects the tagged version via -ldflags
 // -X main.version. Keep the default in sync with the VERSION file —
 // TestVersionLockstep fails if they drift.
-var version = "0.2.0"
+var version = "0.3.0"
 
 func main() {
 	args := os.Args
@@ -35,9 +35,15 @@ func main() {
 			os.Exit(1)
 		}
 	case "inspect":
-		runInspect(rest)
+		if err := runInspect(rest); err != nil {
+			fmt.Fprintf(os.Stderr, "ggufbill: %v\n", err)
+			os.Exit(1)
+		}
 	case "audit":
-		runAudit(rest)
+		if err := runAudit(rest); err != nil {
+			fmt.Fprintf(os.Stderr, "ggufbill: %v\n", err)
+			os.Exit(1)
+		}
 	case "version", "-v", "--version":
 		fmt.Printf("ggufbill %s\n", version)
 	case "-h", "--help", "help":

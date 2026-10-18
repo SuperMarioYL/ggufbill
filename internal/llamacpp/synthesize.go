@@ -1,31 +1,52 @@
 // Package llamacpp synthesizes the exact `llama-server` command line that
 // reproduces a manifest's deployment on a fresh box.
 //
-// m2 (inspect) wires this: `ggufbill inspect` reads a manifest, re-verifies
-// the GGUF sha256, and prints the llama-server invocation produced here. The
-// m1 build only emits manifests, so this file declares the contract and
-// returns ErrNotImplemented; the synthesizer ships with m2.
+// `ggufbill inspect` wires this: it reads a manifest, re-verifies the GGUF
+// sha256 against the model file next to the sidecar, and prints the command
+// produced here plus a deployment summary.
 package llamacpp
 
 import (
 	"errors"
+	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/SuperMarioYL/ggufbill/internal/manifest"
 )
 
-// ErrNotImplemented marks entry points that ship in a later milestone.
-// Calling code should treat this as "build the m1 sidecar first; this reader
-// lands in mN".
-var ErrNotImplemented = errors.New("ggufbill: not implemented in this build (planned for m2: inspect)")
-
 // Synthesize builds the exact `llama-server` invocation that reproduces the
-// manifest's runtime configuration (context_length → -c, kv_cache_dtype →
-// --kv-cache-dtype-q, gpu_layers → -ngl, extra_flags, and the model file).
+// manifest's runtime configuration:
 //
-// m1 returns ErrNotImplemented; m2 (inspect) provides the real synthesizer.
-func Synthesize(m *manifest.Manifest) (string, error) {
+//	model.file       -> -m (modelPath: the path verified on disk by inspect,
+//	                    quoted when it contains whitespace)
+//	context_length   -> -c
+//	gpu_layers       -> -ngl (-1 = offload all layers)
+//	kv_cache_dtype   -> -ctk <dtype> -ctv <dtype>, omitted for f16 (the
+//	                    llama.cpp default) so the reproduced command stays
+//	                    minimal
+//	extra_flags      -> appended verbatim (operator-validated at emit time)
+func Synthesize(m *manifest.Manifest, modelPath string) (string, error) {
 	if m == nil {
 		return "", errors.New("llamacpp: nil manifest")
 	}
-	return "", ErrNotImplemented
+	if modelPath == "" {
+		return "", errors.New("llamacpp: model path is required")
+	}
+	if strings.ContainsAny(modelPath, " \t") {
+		modelPath = strconv.Quote(modelPath)
+	}
+	var b strings.Builder
+	b.WriteString("llama-server")
+	fmt.Fprintf(&b, " -m %s", modelPath)
+	fmt.Fprintf(&b, " -c %d", m.Runtime.ContextLength)
+	fmt.Fprintf(&b, " -ngl %d", m.Runtime.GPULayers)
+	if dt := m.Runtime.KVCacheDType; dt != "" && !strings.EqualFold(dt, "f16") {
+		fmt.Fprintf(&b, " -ctk %s -ctv %s", dt, dt)
+	}
+	for _, f := range m.Runtime.ExtraFlags {
+		b.WriteString(" ")
+		b.WriteString(f)
+	}
+	return b.String(), nil
 }

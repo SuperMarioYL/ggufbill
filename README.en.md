@@ -24,7 +24,7 @@ Keeping only the model file can lose the context length, KV type and engine buil
 
 ## Architecture
 
-The GGUF reader extracts identity, architecture, quantization and parameter metadata and computes SHA-256. emit collects runtime, hardware and operator fields; manifest.Validate checks required values before JSON is written. inspect, audit and llama-server command synthesis are later-milestone interfaces.
+The GGUF reader extracts identity, architecture, quantization and parameter metadata and computes SHA-256. emit collects runtime, hardware and operator fields; manifest.Validate checks required values before JSON is written. inspect re-validates a sidecar, re-verifies the file digest and synthesizes the exact llama-server command; audit aggregates manifests into the 等保 audit view.
 
 <picture>
   <source media="(max-width: 640px) and (prefers-color-scheme: dark)" srcset="assets/presentation/architecture-mobile-dark.svg">
@@ -55,7 +55,8 @@ The script uses the repository’s 318-byte metadata-only GGUF, emits a temporar
 
 ```bash
 ./ggufbill emit internal/gguf/testdata/qwen3-27b-q4_k_m.gguf --context 4096 --kv f16 --operator demo-operator --non-interactive --output demo.ggufbill.json
-python3 -m json.tool demo.ggufbill.json
+./ggufbill inspect demo.ggufbill.json        # re-verify sha256 + print the exact llama-server command
+./ggufbill audit *.ggufbill.json > audit-report.md   # per-box 等保 audit view (markdown; --format html also available)
 ./ggufbill version
 ```
 
@@ -84,11 +85,11 @@ See [manifest.v0.1.json](schemas/manifest.v0.1.json) for the format.
 
 Common options include --context, --kv, --gpu, --gpu-count, --vram, --engine-build, --operator, --procurement-ref, --dengbao-level and --output. GPU names accept comma-separated or repeated values; an omitted engine build becomes unknown.
 
-Protection-level labels, hardware capacity and tool_calling are declarations that the program does not verify. File hashes identify bytes; they are not signatures or provenance authentication. inspect/audit currently print unimplemented notices and should not be treated as validators or report generators.
+Protection-level labels, hardware capacity and tool_calling are declarations that the program does not verify. File hashes identify bytes; they are not signatures or provenance authentication. inspect re-validates a sidecar, re-verifies the whole-file sha256 when the model sits next to the manifest (a mismatch fails; a missing model is reported as unverified), and prints the exact llama-server command; audit aggregates manifests into a markdown or HTML report. Both report declared inputs and fingerprints — they are not compliance conclusions.
 
 ## Recorded demo
 
-Real emit and JSON readback (recorded on v0.1.0; the commands and output are unchanged in v0.2.0). Hardware, tool-calling reliability and regulatory compliance are not tested; temporary files are removed afterward.
+Real emit and JSON readback (recorded on v0.1.0; the commands and output are unchanged in v0.3.0). Hardware, tool-calling reliability and regulatory compliance are not tested; temporary files are removed afterward.
 
 [Inputs, commands and complete output](docs/demo-results.json)
 
@@ -98,8 +99,8 @@ Real emit and JSON readback (recorded on v0.1.0; the commands and output are unc
 
 - [x] GGUF reading, whole-file digest and manifest emission.
 - [x] Interactive/non-interactive input and a machine-readable format.
-- [ ] inspect verification and command synthesis.
-- [ ] Multi-manifest audit reporting.
+- [x] inspect verification and command synthesis.
+- [x] Multi-manifest audit reporting.
 - [ ] More engines, signatures and organizational management.
 
 No paid audit dashboard is currently provided.
