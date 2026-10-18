@@ -8,6 +8,39 @@ this release.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-19
+
+### Added
+
+- `ggufbill inspect <manifest>` (plan milestone m2): validates the sidecar,
+  re-verifies the model's whole-file sha256 against the GGUF next to the
+  manifest — a digest mismatch fails with a non-zero exit, a missing model
+  file is reported as `unverified` — and prints the exact `llama-server`
+  invocation plus a deployment summary. The invocation maps
+  `context_length` to `-c`, `gpu_layers` to `-ngl`, `kv_cache_dtype` to
+  `-ctk <dtype> -ctv <dtype>` (omitted for `f16`, the llama.cpp default),
+  and appends `extra_flags` verbatim.
+- `ggufbill audit [--format markdown|html] <manifest>…` (plan milestone m3):
+  validates every manifest and renders the 等保 deployment-audit view — a
+  per-box table of model/quant/params, context, KV dtype, GPU layers,
+  hardware, operator, procurement_ref and 等保_level, plus per-manifest
+  fingerprints (sha256, engine build, emitting tool) — to stdout so
+  `audit *.ggufbill.json > 等保-部署审计.md` works. Previously both
+  subcommands were stubs that printed a not-implemented notice and exited 0.
+
+### Fixed
+
+- The GGUF reader no longer fabricates `quant: "F32"` for files that carry
+  neither `general.quantization_name` nor `general.file_type`: the fallback
+  resolved the missing `general.file_type` to the zero ftype, whose table
+  entry is "F32". An unlabeled quant now reads `unknown` instead of a false
+  label in the manifest.
+- The GGUF version gate rejects GGUF v1 cleanly. The gate used to accept
+  version 1 while every subsequent read assumed the v2/v3 layout (u64 counts,
+  u64-length strings), so v1 files — which pack counts and string lengths as
+  u32 — died with a confusing mid-block misparse error instead of an
+  unsupported-version rejection.
+
 ## [0.2.0] - 2026-09-14
 
 ### Fixed
@@ -46,6 +79,7 @@ this release.
 - Manifest JSON Schema `schemas/manifest.v0.1.json` and the
   `examples/Qwen3-27B-Q4_K_M.ggufbill.json` example manifest.
 
-[Unreleased]: https://github.com/SuperMarioYL/ggufbill/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/SuperMarioYL/ggufbill/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/SuperMarioYL/ggufbill/releases/tag/v0.3.0
 [0.2.0]: https://github.com/SuperMarioYL/ggufbill/releases/tag/v0.2.0
 [0.1.0]: https://github.com/SuperMarioYL/ggufbill/releases/tag/v0.1.0
