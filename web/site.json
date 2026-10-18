@@ -117,8 +117,8 @@
           "en": "How the implementation fits together"
         },
         "body": {
-          "zh": "GGUF reader 提取名称、架构、量化和参数元数据并计算 SHA-256；emit 收集运行/硬件/操作者字段；manifest.Validate 检查必需值后写 JSON。inspect、audit 和 llama-server 调用合成目前都是后续里程碑接口。",
-          "en": "The GGUF reader extracts identity, architecture, quantization and parameter metadata and computes SHA-256. emit collects runtime, hardware and operator fields; manifest.Validate checks required values before JSON is written. inspect, audit and llama-server command synthesis are later-milestone interfaces."
+          "zh": "GGUF reader 提取名称、架构、量化和参数元数据并计算 SHA-256；emit 收集运行/硬件/操作者字段；manifest.Validate 检查必需值后写 JSON。inspect 复核清单、重验文件哈希并合成准确的 llama-server 命令；audit 把多份清单汇总为等保审计视图。",
+          "en": "The GGUF reader extracts identity, architecture, quantization and parameter metadata and computes SHA-256. emit collects runtime, hardware and operator fields; manifest.Validate checks required values before JSON is written. inspect re-validates a sidecar, re-verifies the file digest and synthesizes the exact llama-server command; audit aggregates manifests into the 等保 audit view."
         },
         "image": {
           "light": "/assets/presentation/architecture-light.svg",
@@ -163,8 +163,8 @@
           "en": "Configuration and limits"
         },
         "body": {
-          "zh": "当前只实现 emit；inspect、audit 和执行命令合成尚未实现。",
-          "en": "Only emit is implemented; inspect, audit and execution-command synthesis are not."
+          "zh": "inspect 复核清单结构，在模型文件与清单同目录时重验整文件哈希（不一致则失败；缺失则报告 unverified），并打印准确的 llama-server 命令；audit 汇总多份清单为 markdown/HTML 报告。两者记录声明与指纹，不构成合规性结论。",
+          "en": "inspect re-validates a sidecar, re-verifies the whole-file sha256 when the model sits next to the manifest (mismatch fails; missing model reports unverified), and prints the exact llama-server command; audit aggregates manifests into a markdown/HTML report. Both record declarations and fingerprints, not compliance conclusions."
         }
       }
     ]
@@ -175,8 +175,8 @@
       "en": "Run the supplied example"
     },
     "note": {
-      "zh": "真实 emit 和 JSON 回读（演示录制于 v0.1.0，v0.2.0 的命令与输出保持一致）。硬件、工具调用可靠性和监管符合性均未测试，临时文件结束后清理。",
-      "en": "Real emit and JSON readback (recorded on v0.1.0; the commands and output are unchanged in v0.2.0). Hardware, tool-calling reliability and regulatory compliance are not tested; temporary files are removed afterward."
+      "zh": "真实 emit 和 JSON 回读（演示录制于 v0.1.0，v0.3.0 的命令与输出保持一致）。硬件、工具调用可靠性和监管符合性均未测试，临时文件结束后清理。",
+      "en": "Real emit and JSON readback (recorded on v0.1.0; the commands and output are unchanged in v0.3.0). Hardware, tool-calling reliability and regulatory compliance are not tested; temporary files are removed afterward."
     },
     "source": "https://github.com/SuperMarioYL/ggufbill/blob/main/docs/demo-results.json",
     "steps": [
@@ -224,8 +224,8 @@
   },
   "limitations": [
     {
-      "zh": "当前只实现 emit；inspect、audit 和执行命令合成尚未实现。",
-      "en": "Only emit is implemented; inspect, audit and execution-command synthesis are not."
+      "zh": "inspect 复核清单结构，在模型文件与清单同目录时重验整文件哈希（不一致则失败；缺失则报告 unverified），并打印准确的 llama-server 命令；audit 汇总多份清单为 markdown/HTML 报告。两者记录声明与指纹，不构成合规性结论。",
+      "en": "inspect re-validates a sidecar, re-verifies the whole-file sha256 when the model sits next to the manifest (mismatch fails; missing model reports unverified), and prints the exact llama-server command; audit aggregates manifests into a markdown/HTML report. Both record declarations and fingerprints, not compliance conclusions."
     },
     {
       "zh": "清单字段不证明硬件适配、推理成功、工具可靠性或合规。",
