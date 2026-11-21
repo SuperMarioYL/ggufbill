@@ -13,6 +13,7 @@ package manifest
 import (
 	"encoding/json"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/invopop/jsonschema"
@@ -135,6 +136,18 @@ func (m *Manifest) Validate() error {
 		m.Model.File == "" || m.Model.SHA256 == "" {
 		return errors.New("manifest: model block incomplete (name, arch, quant, file, sha256 all required)")
 	}
+	// model.file is the name an operator looks for next to the sidecar;
+	// inspect joins it to the manifest's directory, so a path would let a
+	// received manifest point at a file outside that directory.
+	if m.Model.File == "." || m.Model.File == ".." || strings.ContainsAny(m.Model.File, `/\`) {
+		return errors.New("manifest: model.file must be a bare filename, not a path")
+	}
+	// Every consumer treats sha256 as the file's byte identity (inspect
+	// re-computes it, audit prints it as the manifest fingerprint), so a
+	// truncated or non-hex value must not pass as a digest.
+	if !isSHA256Hex(m.Model.SHA256) {
+		return errors.New("manifest: model.sha256 must be 64 lowercase hex characters")
+	}
 	if m.Runtime.Engine == "" {
 		return errors.New("manifest: runtime.engine is required")
 	}
@@ -148,4 +161,19 @@ func (m *Manifest) Validate() error {
 		return errors.New("manifest: audit.emitted_at is required")
 	}
 	return nil
+}
+
+// isSHA256Hex reports whether s is a lowercase hex sha256 digest as produced by
+// hex.EncodeToString(sha256.Sum256(...)).
+func isSHA256Hex(s string) bool {
+	if len(s) != 64 {
+		return false
+	}
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if (c < '0' || c > '9') && (c < 'a' || c > 'f') {
+			return false
+		}
+	}
+	return true
 }

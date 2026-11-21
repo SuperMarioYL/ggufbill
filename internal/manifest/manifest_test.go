@@ -116,3 +116,59 @@ func TestValidateRejectsIncomplete(t *testing.T) {
 		t.Errorf("nil manifest error should mention nil, got %q", err.Error())
 	}
 }
+
+// validTestManifest returns a manifest that passes Validate, so a test can
+// change exactly one field and observe the failure.
+func validTestManifest() *Manifest {
+	return &Manifest{
+		ManifestVersion: Version,
+		Model: Model{Name: "Qwen3-27B", Arch: "qwen2", Quant: "Q4_K_M",
+			File:   "qwen3-27b-q4_k_m.gguf",
+			SHA256: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"},
+		Runtime: Runtime{Engine: "llama.cpp", ContextLength: 4096},
+		Audit:   Audit{Operator: "ops", EmittedAt: time.Date(2026, 11, 22, 0, 0, 0, 0, time.UTC)},
+	}
+}
+
+// TestValidateRejectsPathInModelFile guards the v0.4.0 fix: model.file is
+// documented as a bare filename and emit writes filepath.Base, but Validate
+// accepted separators and dot segments, which inspect then joined into a path
+// outside the sidecar directory.
+func TestValidateRejectsPathInModelFile(t *testing.T) {
+	for _, file := range []string{"../../etc/passwd", "sub/model.gguf", `..\model.gguf`, ".", ".."} {
+		m := validTestManifest()
+		m.Model.File = file
+		err := m.Validate()
+		if err == nil || !strings.Contains(err.Error(), "model.file") {
+			t.Errorf("file %q: err = %v, want a model.file error", file, err)
+		}
+	}
+	m := validTestManifest()
+	if err := m.Validate(); err != nil {
+		t.Errorf("bare filename rejected: %v", err)
+	}
+}
+
+// TestValidateRejectsMalformedSHA256 guards the v0.4.0 fix: any non-empty
+// string passed as model.sha256, so a truncated or upper-case digest reached
+// the audit fingerprint list as if it were the model's byte identity.
+func TestValidateRejectsMalformedSHA256(t *testing.T) {
+	for _, sha := range []string{
+		"abc",
+		strings.Repeat("a", 63),
+		strings.Repeat("a", 65),
+		strings.Repeat("A", 64),
+		strings.Repeat("z", 64),
+	} {
+		m := validTestManifest()
+		m.Model.SHA256 = sha
+		err := m.Validate()
+		if err == nil || !strings.Contains(err.Error(), "model.sha256") {
+			t.Errorf("sha256 %q: err = %v, want a model.sha256 error", sha, err)
+		}
+	}
+	m := validTestManifest()
+	if err := m.Validate(); err != nil {
+		t.Errorf("valid digest rejected: %v", err)
+	}
+}

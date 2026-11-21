@@ -140,3 +140,35 @@ func TestInspectRejectsBadManifests(t *testing.T) {
 		t.Error("no manifest path: expected error, got nil")
 	}
 }
+
+// TestInspectRejectsTraversalModelFile: model.file is a bare filename in every
+// manifest emit writes; a sidecar received from another box may not use it to
+// steer inspect at a file outside the sidecar directory.
+func TestInspectRejectsTraversalModelFile(t *testing.T) {
+	dir := t.TempDir()
+	model := copyFixtureTo(t, dir, "qwen3-27b-q4_k_m.gguf")
+	sidecar := filepath.Join(dir, "demo.ggufbill.json")
+	if err := runEmit([]string{model, "--context", "4096", "--operator", "ops",
+		"--non-interactive", "--output", sidecar}); err != nil {
+		t.Fatalf("emit: %v", err)
+	}
+	raw, err := os.ReadFile(sidecar)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tampered := strings.Replace(string(raw), `"file": "qwen3-27b-q4_k_m.gguf"`,
+		`"file": "../../qwen3-27b-q4_k_m.gguf"`, 1)
+	if tampered == string(raw) {
+		t.Fatalf("sidecar has no model.file to rewrite:\n%s", raw)
+	}
+	if err := os.WriteFile(sidecar, []byte(tampered), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	out, _, err := runInspectCapture(t, sidecar)
+	if err == nil || !strings.Contains(err.Error(), "model.file") {
+		t.Fatalf("err = %v, want a model.file validation error", err)
+	}
+	if strings.Contains(out, "verified") {
+		t.Errorf("inspect printed a verified summary for a traversal file:\n%s", out)
+	}
+}
