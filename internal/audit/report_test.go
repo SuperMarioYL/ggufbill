@@ -99,3 +99,48 @@ func TestRenderRejectsBadInput(t *testing.T) {
 		t.Error("unknown format: expected error, got nil")
 	}
 }
+
+// TestRenderMarkdownEscapesCellContent guards the v0.4.0 fix: the markdown
+// view interpolated operator/supplier strings straight into table cells, so a
+// "|" added a column boundary (shifting 等保/记录时间 and allowing a forged
+// cell) and a newline ended the row in the artifact handed to a 测评.
+func TestRenderMarkdownEscapesCellContent(t *testing.T) {
+	m := testManifest("Qwen3\n27B", "ops|admin", "CG|1", "三级")
+	out, err := Render([]*manifest.Manifest{m}, FormatMarkdown)
+	if err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	s := string(out)
+	cells := func(line string) int {
+		return strings.Count(strings.ReplaceAll(line, `\|`, ""), "|") - 1
+	}
+	tableLines := 0
+	for _, line := range strings.Split(s, "\n") {
+		if !strings.HasPrefix(line, "|") {
+			continue
+		}
+		tableLines++
+		if got := cells(line); got != 13 {
+			t.Errorf("table line has %d cells, want 13: %q", got, line)
+		}
+	}
+	if tableLines != 3 {
+		t.Errorf("table has %d lines, want header + separator + 1 row (a raw newline split the row)", tableLines)
+	}
+	for _, want := range []string{`| ops\|admin | CG\|1 |`, "Qwen3 27B"} {
+		if !strings.Contains(s, want) {
+			t.Errorf("markdown missing %q\ngot:\n%s", want, s)
+		}
+	}
+
+	// The per-manifest fingerprint lines embed the file name too.
+	fp := testManifest("Plain", "ops", "", "")
+	fp.Model.File = "weird|name.gguf"
+	out, err = Render([]*manifest.Manifest{fp}, FormatMarkdown)
+	if err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	if !strings.Contains(string(out), `- weird\|name.gguf — sha256`) {
+		t.Errorf("fingerprint line not escaped:\n%s", out)
+	}
+}

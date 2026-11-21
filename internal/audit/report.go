@@ -126,6 +126,20 @@ func dashIfEmpty(s string) string {
 	return s
 }
 
+// mdCell renders one markdown table cell. Model names, operators, procurement
+// references and 等保 levels are free-form operator/supplier text; a raw "|"
+// would add a column boundary and a newline would end the row, so both are
+// escaped and line breaks are folded into spaces. Strings without markup are
+// returned unchanged.
+func mdCell(s string) string {
+	s = strings.ReplaceAll(s, `\`, `\\`)
+	s = strings.ReplaceAll(s, "|", `\|`)
+	s = strings.ReplaceAll(s, "\r\n", " ")
+	s = strings.ReplaceAll(s, "\n", " ")
+	s = strings.ReplaceAll(s, "\r", " ")
+	return strings.TrimSpace(s)
+}
+
 const mdHeader = `# GGUF 部署审计报告
 
 等保部署审计视图,由 ggufbill audit 从随包清单生成;生成时间 %s。记录的是清单声明与来源指纹,不构成部署可用性或合规性结论。
@@ -139,12 +153,12 @@ func renderMarkdown(ms []*manifest.Manifest) ([]byte, error) {
 	b.WriteString("|---|---|---|---|---|---|---|---|---|---|---|---|---|\n")
 	for _, r := range buildRows(ms) {
 		fmt.Fprintf(&b, "| %d | %s | %s | %s | %s | %d | %s | %d | %s | %s | %s | %s | %s |\n",
-			r.Index, r.File, r.Model, r.Quant, r.Params, r.Context, r.KV,
-			r.GPULayers, r.Hardware, r.Operator, r.ProcurementRef, r.DengbaoLevel, r.EmittedAt)
+			r.Index, mdCell(r.File), mdCell(r.Model), mdCell(r.Quant), mdCell(r.Params), r.Context, mdCell(r.KV),
+			r.GPULayers, mdCell(r.Hardware), mdCell(r.Operator), mdCell(r.ProcurementRef), mdCell(r.DengbaoLevel), mdCell(r.EmittedAt))
 	}
 	b.WriteString("\n## 清单指纹\n\n")
 	for _, line := range fingerprints(ms) {
-		fmt.Fprintf(&b, "- %s\n", line)
+		fmt.Fprintf(&b, "- %s\n", mdCell(line))
 	}
 	return []byte(b.String()), nil
 }
