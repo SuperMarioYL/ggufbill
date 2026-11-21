@@ -37,6 +37,7 @@ func runEmit(args []string) error {
 		notes     string
 		output    string
 		nonInter  bool
+		force     bool
 	)
 	fs := flag.NewFlagSet("emit", flag.ContinueOnError)
 	fs.SetOutput(os.Stderr)
@@ -57,6 +58,7 @@ func runEmit(args []string) error {
 	fs.StringVar(&output, "output", "", "output path (default: sidecar next to the .gguf)")
 	fs.StringVar(&output, "o", "", "shorthand for --output")
 	fs.BoolVar(&nonInter, "non-interactive", false, "never prompt; require all fields via flags")
+	fs.BoolVar(&force, "force", false, "overwrite an existing manifest at the output path")
 	fs.Usage = func() {
 		fmt.Fprintln(os.Stderr, "usage: ggufbill emit <file.gguf> [flags]")
 		fmt.Fprintln(os.Stderr)
@@ -176,6 +178,16 @@ func runEmit(args []string) error {
 	data, err := m.JSON()
 	if err != nil {
 		return fmt.Errorf("emit: marshal: %w", err)
+	}
+	// The sidecar is the operator's own artifact: they edit quirks, extra
+	// flags, procurement_ref and 等保_level in place after the first emit, so a
+	// rerun that would replace those fields must be explicit.
+	if !force {
+		if _, err := os.Stat(outPath); err == nil {
+			return fmt.Errorf("emit: refusing to overwrite %s (existing manifest; pass --force)", outPath)
+		} else if !os.IsNotExist(err) {
+			return fmt.Errorf("emit: stat %s: %w", outPath, err)
+		}
 	}
 	if err := os.WriteFile(outPath, data, 0o644); err != nil {
 		return fmt.Errorf("emit: write %s: %w", outPath, err)
