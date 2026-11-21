@@ -8,6 +8,38 @@ this release.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-22
+
+### Added
+
+- `ggufbill emit --force`. emit now refuses to replace an existing manifest at
+  the output path and names the flag in the error; nothing is written when the
+  guard fires.
+
+### Fixed
+
+- emit no longer destroys a hand-edited sidecar. The default output is the
+  `.ggufbill.json` next to the model and the write was unconditional, so a
+  second emit replaced `extra_flags`, `known_breakages`, `procurement_ref`,
+  `等保_level` and `notes` with that run's flag defaults and still exited 0.
+  Existing manifests are now left untouched unless `--force` is passed.
+- `ggufbill audit` markdown escapes operator-supplied cells. `model.name`,
+  `audit.operator`, `procurement_ref`, `等保_level` and the hardware summary
+  were interpolated verbatim into the table, so a `|` added a column boundary
+  (shifting `等保`/`记录时间` and allowing a forged cell) and a newline ended
+  the row in the artifact meant for a 测评 report. Pipes, backslashes and line
+  breaks are now escaped in table cells and in the fingerprint lines; plain
+  values render exactly as before.
+- Manifest validation requires `model.file` to be a bare filename. Validate
+  accepted path separators and dot segments, and `inspect` joins that value to
+  the sidecar's directory, so a manifest received from another box could make
+  inspect hash a file outside that directory and report it as verified.
+- Manifest validation requires `model.sha256` to be 64 lowercase hex
+  characters. Any non-empty string used to pass, even though `inspect`
+  re-computes the digest and `audit` prints the value as the file fingerprint;
+  a truncated or upper-case digest now fails validation instead of appearing as
+  a byte identity.
+
 ## [0.3.0] - 2026-10-19
 
 ### Added
@@ -79,7 +111,8 @@ this release.
 - Manifest JSON Schema `schemas/manifest.v0.1.json` and the
   `examples/Qwen3-27B-Q4_K_M.ggufbill.json` example manifest.
 
-[Unreleased]: https://github.com/SuperMarioYL/ggufbill/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/SuperMarioYL/ggufbill/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/SuperMarioYL/ggufbill/releases/tag/v0.4.0
 [0.3.0]: https://github.com/SuperMarioYL/ggufbill/releases/tag/v0.3.0
 [0.2.0]: https://github.com/SuperMarioYL/ggufbill/releases/tag/v0.2.0
 [0.1.0]: https://github.com/SuperMarioYL/ggufbill/releases/tag/v0.1.0

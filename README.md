@@ -60,7 +60,7 @@ python3 examples/presentation_demo.py
 ./ggufbill version
 ```
 
-emit 可以交互式询问字段；脚本建议显式给 --context、--operator 和 --non-interactive。--gpu-layers=-1 表示把该配置值记入清单，不是实际执行 GPU offload。
+emit 可以交互式询问字段；脚本建议显式给 --context、--operator 和 --non-interactive。emit 默认拒绝覆盖已存在的清单，确需重写时加 --force。--gpu-layers=-1 表示把该配置值记入清单，不是实际执行 GPU offload。
 
 ## 能力与集成
 
@@ -83,13 +83,13 @@ emit 可以交互式询问字段；脚本建议显式给 --context、--operator 
 
 ## 配置与边界
 
-常用参数包括 --context、--kv、--gpu、--gpu-count、--vram、--engine-build、--operator、--procurement-ref、--dengbao-level 和 --output。GPU 名称可逗号分隔或重复输入；engine build 未填写时为 unknown。
+常用参数包括 --context、--kv、--gpu、--gpu-count、--vram、--engine-build、--operator、--procurement-ref、--dengbao-level、--output 和 --force。GPU 名称可逗号分隔或重复输入；engine build 未填写时为 unknown。
 
-等保级别、硬件容量和 tool_calling 都是声明字段，程序不核验它们。文件哈希用于关联字节身份，不是签名或来源认证。inspect 复核清单结构，在模型文件与清单同目录时重验整文件哈希（不一致则失败；模型缺失则报告 unverified），并打印准确的 llama-server 命令；audit 把多份清单汇总为 markdown 或 HTML 报告。两者记录的是声明与指纹，不构成合规性结论。
+等保级别、硬件容量和 tool_calling 都是声明字段，程序不核验它们。文件哈希用于关联字节身份，不是签名或来源认证。清单校验要求 model.file 是纯文件名（不带目录）、model.sha256 是 64 位小写十六进制，避免收到他人清单时指向清单目录以外的文件，也避免把非摘要值当成文件指纹。emit 默认不覆盖已存在的清单：手工补充过 extra_flags、quirks、procurement_ref 或 等保级别后再运行会被拒绝，只有显式传 --force 才重写。inspect 复核清单结构，在模型文件与清单同目录时重验整文件哈希（不一致则失败；模型缺失则报告 unverified），并打印准确的 llama-server 命令；audit 把多份清单汇总为 markdown 或 HTML 报告，并对操作者自由文本做转义，保证表格列不错位。两者记录的是声明与指纹，不构成合规性结论。
 
 ## 运行记录
 
-真实 emit 和 JSON 回读（演示录制于 v0.1.0，v0.3.0 的命令与输出保持一致）。硬件、工具调用可靠性和监管符合性均未测试，临时文件结束后清理。
+真实 emit 和 JSON 回读（演示录制于 v0.1.0，v0.4.0 的命令与输出保持一致）。硬件、工具调用可靠性和监管符合性均未测试，临时文件结束后清理。
 
 [输入、命令和完整输出](docs/demo-results.json)
 

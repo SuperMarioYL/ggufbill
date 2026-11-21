@@ -60,7 +60,7 @@ The script uses the repository’s 318-byte metadata-only GGUF, emits a temporar
 ./ggufbill version
 ```
 
-emit can prompt interactively. Scripts should provide --context, --operator and --non-interactive explicitly. --gpu-layers=-1 records a setting; it does not perform GPU offload.
+emit can prompt interactively. Scripts should provide --context, --operator and --non-interactive explicitly. emit refuses to replace an existing manifest unless --force is passed. --gpu-layers=-1 records a setting; it does not perform GPU offload.
 
 ## Capabilities and integrations
 
@@ -83,13 +83,13 @@ See [manifest.v0.1.json](schemas/manifest.v0.1.json) for the format.
 
 ## Configuration and limits
 
-Common options include --context, --kv, --gpu, --gpu-count, --vram, --engine-build, --operator, --procurement-ref, --dengbao-level and --output. GPU names accept comma-separated or repeated values; an omitted engine build becomes unknown.
+Common options include --context, --kv, --gpu, --gpu-count, --vram, --engine-build, --operator, --procurement-ref, --dengbao-level, --output and --force. GPU names accept comma-separated or repeated values; an omitted engine build becomes unknown.
 
-Protection-level labels, hardware capacity and tool_calling are declarations that the program does not verify. File hashes identify bytes; they are not signatures or provenance authentication. inspect re-validates a sidecar, re-verifies the whole-file sha256 when the model sits next to the manifest (a mismatch fails; a missing model is reported as unverified), and prints the exact llama-server command; audit aggregates manifests into a markdown or HTML report. Both report declared inputs and fingerprints — they are not compliance conclusions.
+Protection-level labels, hardware capacity and tool_calling are declarations that the program does not verify. File hashes identify bytes; they are not signatures or provenance authentication. Manifest validation requires model.file to be a bare filename (no directory) and model.sha256 to be 64 lowercase hex characters, so a manifest received from another box cannot point outside the sidecar directory and a non-digest value cannot pass as the file fingerprint. emit does not replace an existing manifest by default: re-running over a sidecar whose extra_flags, quirks, procurement_ref or 等保 level were edited is refused until --force is passed. inspect re-validates a sidecar, re-verifies the whole-file sha256 when the model sits next to the manifest (a mismatch fails; a missing model is reported as unverified), and prints the exact llama-server command; audit aggregates manifests into a markdown or HTML report and escapes operator free text so table columns stay aligned. Both report declared inputs and fingerprints — they are not compliance conclusions.
 
 ## Recorded demo
 
-Real emit and JSON readback (recorded on v0.1.0; the commands and output are unchanged in v0.3.0). Hardware, tool-calling reliability and regulatory compliance are not tested; temporary files are removed afterward.
+Real emit and JSON readback (recorded on v0.1.0; the commands and output are unchanged in v0.4.0). Hardware, tool-calling reliability and regulatory compliance are not tested; temporary files are removed afterward.
 
 [Inputs, commands and complete output](docs/demo-results.json)
 

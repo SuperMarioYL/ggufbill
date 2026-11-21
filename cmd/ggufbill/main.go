@@ -19,7 +19,7 @@ import (
 // value; the release workflow injects the tagged version via -ldflags
 // -X main.version. Keep the default in sync with the VERSION file —
 // TestVersionLockstep fails if they drift.
-var version = "0.3.0"
+var version = "0.4.0"
 
 func main() {
 	args := os.Args

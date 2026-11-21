@@ -11,7 +11,7 @@
   "meta": {
     "visual_profile": "neon-particle",
     "demo_source": "docs/demo-results.json",
-    "implementation_version": "0.3.0"
+    "implementation_version": "0.4.0"
   },
   "hero": {
     "eyebrow": {
@@ -163,8 +163,8 @@
           "en": "Configuration and limits"
         },
         "body": {
-          "zh": "inspect 复核清单结构，在模型文件与清单同目录时重验整文件哈希（不一致则失败；缺失则报告 unverified），并打印准确的 llama-server 命令；audit 汇总多份清单为 markdown/HTML 报告。两者记录声明与指纹，不构成合规性结论。",
-          "en": "inspect re-validates a sidecar, re-verifies the whole-file sha256 when the model sits next to the manifest (mismatch fails; missing model reports unverified), and prints the exact llama-server command; audit aggregates manifests into a markdown/HTML report. Both record declarations and fingerprints, not compliance conclusions."
+          "zh": "manifest 校验要求 model.file 是纯文件名、model.sha256 是 64 位小写十六进制；emit 默认拒绝覆盖已存在的清单（需 --force）。inspect 复核清单结构，在模型文件与清单同目录时重验整文件哈希（不一致则失败；缺失则报告 unverified），并打印准确的 llama-server 命令；audit 汇总多份清单为 markdown/HTML 报告并对操作者自由文本转义。两者记录声明与指纹，不构成合规性结论。",
+          "en": "Manifest validation requires a bare model.file and a 64-character lowercase hex model.sha256; emit refuses to replace an existing manifest unless --force is passed. inspect re-validates a sidecar, re-verifies the whole-file sha256 when the model sits next to the manifest (mismatch fails; missing model reports unverified), and prints the exact llama-server command; audit aggregates manifests into a markdown/HTML report and escapes operator free text. Both record declarations and fingerprints, not compliance conclusions."
         }
       }
     ]
@@ -175,8 +175,8 @@
       "en": "Run the supplied example"
     },
     "note": {
-      "zh": "真实 emit 和 JSON 回读（演示录制于 v0.1.0，v0.3.0 的命令与输出保持一致）。硬件、工具调用可靠性和监管符合性均未测试，临时文件结束后清理。",
-      "en": "Real emit and JSON readback (recorded on v0.1.0; the commands and output are unchanged in v0.3.0). Hardware, tool-calling reliability and regulatory compliance are not tested; temporary files are removed afterward."
+      "zh": "真实 emit 和 JSON 回读（演示录制于 v0.1.0，v0.4.0 的命令与输出保持一致）。硬件、工具调用可靠性和监管符合性均未测试，临时文件结束后清理。",
+      "en": "Real emit and JSON readback (recorded on v0.1.0; the commands and output are unchanged in v0.4.0). Hardware, tool-calling reliability and regulatory compliance are not tested; temporary files are removed afterward."
     },
     "source": "https://github.com/SuperMarioYL/ggufbill/blob/main/docs/demo-results.json",
     "steps": [
@@ -224,8 +224,8 @@
   },
   "limitations": [
     {
-      "zh": "inspect 复核清单结构，在模型文件与清单同目录时重验整文件哈希（不一致则失败；缺失则报告 unverified），并打印准确的 llama-server 命令；audit 汇总多份清单为 markdown/HTML 报告。两者记录声明与指纹，不构成合规性结论。",
-      "en": "inspect re-validates a sidecar, re-verifies the whole-file sha256 when the model sits next to the manifest (mismatch fails; missing model reports unverified), and prints the exact llama-server command; audit aggregates manifests into a markdown/HTML report. Both record declarations and fingerprints, not compliance conclusions."
+      "zh": "manifest 校验要求 model.file 是纯文件名、model.sha256 是 64 位小写十六进制；emit 默认拒绝覆盖已存在的清单（需 --force）。inspect 复核清单结构，在模型文件与清单同目录时重验整文件哈希（不一致则失败；缺失则报告 unverified），并打印准确的 llama-server 命令；audit 汇总多份清单为 markdown/HTML 报告并对操作者自由文本转义。两者记录声明与指纹，不构成合规性结论。",
+      "en": "Manifest validation requires a bare model.file and a 64-character lowercase hex model.sha256; emit refuses to replace an existing manifest unless --force is passed. inspect re-validates a sidecar, re-verifies the whole-file sha256 when the model sits next to the manifest (mismatch fails; missing model reports unverified), and prints the exact llama-server command; audit aggregates manifests into a markdown/HTML report and escapes operator free text. Both record declarations and fingerprints, not compliance conclusions."
     },
     {
       "zh": "清单字段不证明硬件适配、推理成功、工具可靠性或合规。",
